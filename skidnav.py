@@ -9,13 +9,13 @@ from random import normalvariate, uniform
 # Nome/matrícula:Lucas Costa Araujo / 130060313
 # Nome/matrícula:Lucas Gomes Pereira / 130013242
 #
-# 1) Criar o chao
+# 1) Criar o chao (OK!)
 #
-# 2) Criar las Personitas
+# 2) Criar las Personitas (  )
 #    
-# 3) Criar o tiro
+# 3) Criar o tiro (  )
 #    
-# 4) Criar os inputs
+# 4) Criar os inputs (  )
 
 ###############################################################################
 #                           Constantes do jogo
@@ -30,29 +30,28 @@ HEIGHT = 600
 class Skidnav(World):
 	"""Define o mundo do jogo Skidnav"""
 	def __init__(self):
-		World.__init__(self, background='white')
+		World.__init__(self, background='white', gravity = 50)
 
-		# Cria chao
+		#Cria chao
 		floor_vertices = [(0, 0), (0, 100), (WIDTH, 100), (WIDTH,0)]
-		self.floor = Poly(floor_vertices, color='black', pos=Vector(WIDTH/2,0))
-		
-		#Cria personagens
-		player_vertices = [(150, 100),(150, 160),(200, 160),(200, 100)]
-		self.player1 = Poly(player_vertices, color='blue', pos=Vector(150,70))
-		self.player2 = Poly(player_vertices, color='red', pos=Vector(WIDTH-150,70))
-		
-		#Cria Arma dos Personagens
-		gun_vertices = [(0,0),(25,50),(40,15)]
-		self.player1.gun = Poly(gun_vertices, color='blue', pos=Vector(200, 60))
-
-		#Adicionar os objetos ao mundo do jogo
+		self.floor = Poly(floor_vertices, color='black', pos=Vector(WIDTH/2,0), world = self)
+		self.floor.mass = 'inf'
 		self.add(self.floor)
+
+		#Cria personagens
+		player_vertices = [(0, 0),(0, 50),(25, 50),(25, 0)]
+		self.player1 = Poly(player_vertices, color='blue', pos=Vector(120,125), world = self)
+		self.player2 = Poly(player_vertices, color='red', pos=Vector(WIDTH-120,125), world = self)
+
 		self.add(self.player1)
-		self.add(self.player1.gun)
 		self.add(self.player2)
 
-		
-		
+		#Acoes por frame
+		# @listen ('frame-enter')
+		# def apply_gravity(self)
+
+
+
 
 # class Asteroids(World):
 
