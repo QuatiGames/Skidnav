@@ -30,16 +30,16 @@ HEIGHT = 600
 class Skidnav(World):
 	"""Define o mundo do jogo Skidnav"""
 	def __init__(self):
-		World.__init__(self, background='white', gravity = 50)
+		World.__init__(self, background='white', gravity = 500)
 
 		#Cria chao
-		floor_vertices = [(0, 0), (0, 100), (WIDTH, 100), (WIDTH,0)]
+		floor_vertices = [(0, 0), (WIDTH, 0), (WIDTH, 100), (0,100)]
 		self.floor = Poly(floor_vertices, color='black', pos=Vector(WIDTH/2,0), world = self)
 		self.floor.mass = 'inf'
 		self.add(self.floor)
 
 		#Cria personagens
-		player_vertices = [(0, 0),(0, 50),(25, 50),(25, 0)]
+		player_vertices = [(0, 0),(25, 0),(25, 50),(0, 50)]
 		self.player1 = Poly(player_vertices, color='blue', pos=Vector(120,125), world = self)
 		self.player2 = Poly(player_vertices, color='red', pos=Vector(WIDTH-120,125), world = self)
 
@@ -48,7 +48,7 @@ class Skidnav(World):
 
 		#Acoes por frame
 		# @listen ('frame-enter')
-		# def apply_gravity(self)
+		# def (self)
 
 
 
