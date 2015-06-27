@@ -44,28 +44,37 @@ class Player(Poly):
 
 class Bullet(Poly):
 	
+	def __init__(self, pos, world):
+		bullet_vertices = [(0,0),(25,0),(25,25),(0,25)]
+
+		Poly.__init__(self, bullet_vertices, color='green', pos=pos, world = world)
+		
+		self.make_static()
+		self.name = 'bullet'
+		self.angle = 0
+
 	@listen('collision')
 	def handle_collision(self, col):
 		other = col.other(self)
 		if other.name == 'Floor':
 			self.make_static()
 			self.vel = Vector(0,0)
-		elif other.name == '1' | other.name == '2':
-			pass
+		elif other.name == '1' or other.name == '2':
+			print('Atingiu o player' + other.name)
 
 		else:
 			pass
 		
 class Power_bar(Poly):
 
-	# def __init__(self, player1, world):
-	# 	power_bar_vertices = [(0,0),(10,0),(10,50),(0,50)]
+	def __init__(self, pos, world):
+		power_bar_vertices = [(0,0),(10,0),(10,50),(0,50)]
 
-	# 	Poly.__init__(power_bar_vertices, color='red', pos=player1.pos - Vector(50,0), world = world)
+		Poly.__init__(self, power_bar_vertices, color='red', pos=pos, world = world)
 		
-		# power_bar.make_static()
-		# power_bar.name = 'power'
-		# power_bar.angle = 0
+		self.make_static()
+		self.name = 'power'
+		self.angle = 0
 	pass
 
 class Skidnav(World):
@@ -100,24 +109,27 @@ class Skidnav(World):
 	def start_power_bar(self):
 		#cria a barra
 		
-		power_bar_vertices = [(0,0),(10,0),(10,50),(0,50)]
+		self.player1.power_bar = Power_bar( pos=self.player1.pos - Vector(50,0), world = self)
+		self.add(self.player1.power_bar)
 
-		self.player1.power_bar = Power_bar(power_bar_vertices, color='red', pos=self.player1.pos - Vector(50,0), world = self)
-		self.player1.power_bar.name = 'power'
-		self.player1.power_bar.angle = 0
-		self.player1.power_bar.make_static()
+		self.player1.bullet = Bullet( pos= self.player1.pos + Vector(50,0), world = self)
 		self.add(self.player1.power_bar)
 
 	@listen('long-press', 'space')
 	def powering_shot(self):
 		self.player1.power_bar.angle += 0.1
 		self.player1.power_bar.pos.y += sin(self.player1.power_bar.angle)*10
+		self.player1.bullet.rotate(0.1)
 
 	@listen('key-up', 'space')
 	def end_power_bar(self):
 		print("released")
+		#Removing power_bar from the world \o/
 		# self.remove(self.player1.power_bar)
-		self.player1.power_bar.vel = Vector(0,500)
+		self.player1.power_bar.pos.y = 1000
+		self.player1.power_bar.make_static()
+		self.player1.bullet.vel = Vector(10,10)*self.player1.power_bar.angle*10
+
 
 if __name__ == '__main__':
     game = Skidnav()
