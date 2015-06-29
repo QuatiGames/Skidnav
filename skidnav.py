@@ -26,6 +26,7 @@ from math import *
 ###############################################################################
 WIDTH = 800
 HEIGHT = 600
+G = Vector(0,-10)
 
 ###############################################################################
 #                             Implementação
@@ -53,6 +54,7 @@ class Bullet(Poly):
 		
 		self.make_static()
 		self.name = 'bullet'
+		self.is_flying = 0 #variavel pode ser eliminada caso consiga voltar o objeto ao estado dinamico
 
 	@listen('collision')
 	def handle_collision(self, col):
@@ -108,15 +110,25 @@ class Skidnav(World):
 
 	@listen('frame-enter')
 	def init_frame(self):
+		
+		bullet = self.player1.bullet
 
 		if self.player1.bullet != 0:
-			self.player1.bullet.rotate(0.2)
+
+			if bullet.is_flying == 1:
+				bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+
+			if bullet.pos.y <= 50 or bullet.pos.x > WIDTH:
+				bullet.vel = Vector(0,0)
+				self.player1.can_shoot = 1
+			else: 
+				bullet.rotate(0.2)
 			
 			# o normal seria WIDTH apenas... sem ser WIDTH/2 isso seria que outro projetil so pode ser
 			# lançado ser lançado depois do primeiro sair da tela ou tocar o chao
 			# para restringir atirar demais, nao sei se jogaremos por rodada... acho melhor nao
-			if self.player1.bullet.pos.x > WIDTH/2 or self.player1.bullet.pos.y > HEIGHT- 130:
-				self.player1.can_shoot = 1
+			# if bullet.pos.x > WIDTH/2 or bullet.pos.y > HEIGHT- 130:
+			# 	self.player1.can_shoot = 1
 
 	@listen('key-down', 'space')
 	def start_power_bar(self):
@@ -132,13 +144,11 @@ class Skidnav(World):
 	def powering_shot(self):
 
 		#if self.player1.can_shoot == 1:
-		self.player1.power_bar.angle += 0.1
-		self.player1.power_bar.pos.y += sin(self.player1.power_bar.angle)*10
+		self.player1.power_bar.angle += 0.08
+		self.player1.power_bar.pos.y += sin(self.player1.power_bar.angle)*5
 
 	@listen('key-up', 'space')
 	def end_power_bar(self):
-
-
 
 		if self.player1.can_shoot == 1:
 			print("released")
@@ -150,7 +160,8 @@ class Skidnav(World):
 			# se pegarmos a altura da barra fica mais tranquilo de medir a força :D
 
 			self.player1.power_bar.pos.y = 1000
-			self.player1.bullet.vel = Vector(10,10)*power/7
+			self.player1.bullet.vel = Vector(10,10)*power/4
+			self.player1.bullet.is_flying = 1
 			#self.player1.bullet.make_dynamic() # esse metodo esta certo porem ele ta dando erro
 			# make_dynamic() eh o oposto de make_static() desse jeito ele tenta recuperar
 			# a massa e outros atributos
