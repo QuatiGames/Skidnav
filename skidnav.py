@@ -26,7 +26,8 @@ from math import *
 ###############################################################################
 WIDTH = 800
 HEIGHT = 600
-G = Vector(0,-10)
+G = Vector(0,-20)
+wind = Vector(-5,0)
 
 ###############################################################################
 #                             Implementação
@@ -98,6 +99,7 @@ class Skidnav(World):
 		#self.player1.collision_signal = signal('collision')
 		self.player1.name = '1'
 		self.player2.name = '2'
+		self.player2.vida = 100
 
 		self.player1.bullet = 0
 		self.player1.power_bar = 0
@@ -117,10 +119,12 @@ class Skidnav(World):
 
 			if bullet.is_flying == 1:
 				bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+				bullet.vel += wind
 
-			if bullet.pos.y <= 50 or bullet.pos.x > WIDTH:
+			if bullet.pos.y <= self.floor.ymax or bullet.pos.x > WIDTH:
 				bullet.vel = Vector(0,0)
 				self.player1.can_shoot = 1
+
 			else: 
 				bullet.rotate(0.2)
 			
@@ -160,7 +164,7 @@ class Skidnav(World):
 			# se pegarmos a altura da barra fica mais tranquilo de medir a força :D
 
 			self.player1.power_bar.pos.y = 1000
-			self.player1.bullet.vel = Vector(10,10)*power/4
+			self.player1.bullet.vel = Vector(10,10)*power/2.5
 			self.player1.bullet.is_flying = 1
 			#self.player1.bullet.make_dynamic() # esse metodo esta certo porem ele ta dando erro
 			# make_dynamic() eh o oposto de make_static() desse jeito ele tenta recuperar
