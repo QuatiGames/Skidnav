@@ -106,7 +106,7 @@ class Skidnav(World):
 		self.player2.vida = 100
 
 		self.player1.bullet = 0
-		self.player1.power_bar = 0
+		self.player1.power_bar = Power_bar( pos=Vector(0,1000), world = self)
 		self.player1.can_shoot = 1
 		self.player1.is_shotting = 0
 		self.player1.shot_angle = 0.0
@@ -147,8 +147,9 @@ class Skidnav(World):
 		self.player1.is_shotting = 1
 
 		if self.player1.can_shoot == 1:
-			self.player1.power_bar = Power_bar( pos=self.player1.pos - Vector(50,0), world = self)
-			self.add(self.player1.power_bar)
+			# self.player1.power_bar = Power_bar( pos=self.player1.pos - Vector(50,0), world = self)
+			# self.add(self.player1.power_bar)
+			self.player1.power_bar.pos = self.player1.pos - Vector(50,0)
 
 			self.player1.bullet = Bullet( pos= self.player1.pos + Vector(50,0), world = self)
 			self.add(self.player1.power_bar)
@@ -173,6 +174,7 @@ class Skidnav(World):
 			# se pegarmos a altura da barra fica mais tranquilo de medir a força :D
 
 			self.player1.power_bar.pos.y = 1000
+			self.player1.power_bar.angle = 0
 			self.player1.bullet.vel = self.player1.shot_direction*power/2.5
 			self.player1.bullet.is_flying = 1
 			self.player1.is_shotting = 0
