@@ -74,16 +74,21 @@ class Bullet(Poly):
 			pass
 		
 class Power_bar(Poly):
-
 	def __init__(self, pos, world):
 		power_bar_vertices = [(0,0),(10,0),(10,50),(0,50)]
 
-		Poly.__init__(self, power_bar_vertices, color='red', pos=pos, world = world)
+		Poly.__init__(self, power_bar_vertices, color='red', pos=pos, world=world)
 		
 		self.make_static()
 		self.name = 'power'
 		self.angle = 0
-	pass
+
+		#A linha q marca o forca do tiro
+		line_vertices = [(0,0),(15,0),(15,5),(0,5)]
+		self.power_line = Poly(line_vertices, color='white', pos=pos, world=world)
+		self.power_line.name = 'line'
+		self.power_line.angle = 0
+		self.power_line.make_static()
 
 class Skidnav(World):
 	"""Define o mundo do jogo Skidnav"""
@@ -107,6 +112,8 @@ class Skidnav(World):
 
 		self.player1.bullet = 0
 		self.player1.power_bar = Power_bar( pos=Vector(0,1000), world = self)
+		self.add(self.player1.power_bar)
+		self.add(self.player1.power_bar.power_line)
 		self.player1.can_shoot = 1
 		self.player1.is_shotting = 0
 		self.player1.shot_angle = 0.0
@@ -147,19 +154,20 @@ class Skidnav(World):
 		self.player1.is_shotting = 1
 
 		if self.player1.can_shoot == 1:
-			# self.player1.power_bar = Power_bar( pos=self.player1.pos - Vector(50,0), world = self)
-			# self.add(self.player1.power_bar)
+			# Voltando a barra de ppoder para a posicao certa
 			self.player1.power_bar.pos = self.player1.pos - Vector(50,0)
+			self.player1.power_bar.power_line.pos = self.player1.pos - Vector(50,0)
 
 			self.player1.bullet = Bullet( pos= self.player1.pos + Vector(50,0), world = self)
-			self.add(self.player1.power_bar)
 
 	@listen('long-press', 'space')
 	def powering_shot(self):
 
 		#if self.player1.can_shoot == 1:
-		self.player1.power_bar.angle += 0.08
-		self.player1.power_bar.pos.y += sin(self.player1.power_bar.angle)*5
+		# self.player1.power_bar.angle += 0.08
+		# self.player1.power_bar.pos.y += sin(self.player1.power_bar.angle)*5
+		self.player1.power_bar.power_line.angle += 0.05
+		self.player1.power_bar.power_line.pos.y = -cos(self.player1.power_bar.power_line.angle)*(self.player1.power_bar.height/2) + self.player1.power_bar.pos.y
 
 	@listen('key-up', 'space')
 	def end_power_bar(self):
@@ -168,13 +176,11 @@ class Skidnav(World):
 			print("released")
 			#Removing power_bar from the world \o/
 			# self.remove(self.player1.power_bar)
-			power = self.player1.power_bar.pos.y 
-			# o sin deixa com que o ponto mais alto da barra
-			# nao seja o ponto mais forte
-			# se pegarmos a altura da barra fica mais tranquilo de medir a força :D
-
+			power = self.player1.power_bar.power_line.pos.y * 2
+			
 			self.player1.power_bar.pos.y = 1000
-			self.player1.power_bar.angle = 0
+			self.player1.power_bar.power_line.pos.y = 1000			
+			self.player1.power_bar.power_line.angle = 0
 			self.player1.bullet.vel = self.player1.shot_direction*power/2.5
 			self.player1.bullet.is_flying = 1
 			self.player1.is_shotting = 0
