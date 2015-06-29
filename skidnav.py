@@ -15,19 +15,23 @@ from math import *
 #
 # 2) Criar las Personitas (OK!)
 #    
-# 3) Criar o tiro (  )
+# 3) Criar o tiro (OK)
 #    
-# 4) Criar os inputs (  )
+# 4) Criar os inputs (OK)
 # 
-# 5) Criar os indicadores de angulo (  )
+# 5) Criar os indicadores de angulo (QUASE)
 
 ###############################################################################
 #                           Constantes do jogo
 ###############################################################################
 WIDTH = 800
 HEIGHT = 600
+
+### a gravidade e o vento sao aceleracoes, mas do jeito que esta nao esta correto
+### do jeito que esta agora elas sao velocidades constantes que aplicam na velocidade da bala
+###
 G = Vector(0,-20)
-wind = Vector(-5,0)
+wind = Vector(-9,2)
 
 ###############################################################################
 #                             Implementação
@@ -104,6 +108,9 @@ class Skidnav(World):
 		self.player1.bullet = 0
 		self.player1.power_bar = 0
 		self.player1.can_shoot = 1
+		self.player1.is_shotting = 0
+		self.player1.shot_angle = 0.0
+		self.player1.shot_direction = Vector(10,10)
 
 		self.add(self.player1)
 		self.add(self.player2)
@@ -137,6 +144,8 @@ class Skidnav(World):
 	@listen('key-down', 'space')
 	def start_power_bar(self):
 		#cria a barra
+		self.player1.is_shotting = 1
+
 		if self.player1.can_shoot == 1:
 			self.player1.power_bar = Power_bar( pos=self.player1.pos - Vector(50,0), world = self)
 			self.add(self.player1.power_bar)
@@ -164,13 +173,39 @@ class Skidnav(World):
 			# se pegarmos a altura da barra fica mais tranquilo de medir a força :D
 
 			self.player1.power_bar.pos.y = 1000
-			self.player1.bullet.vel = Vector(10,10)*power/2.5
+			self.player1.bullet.vel = self.player1.shot_direction*power/2.5
 			self.player1.bullet.is_flying = 1
+			self.player1.is_shotting = 0
+			
 			#self.player1.bullet.make_dynamic() # esse metodo esta certo porem ele ta dando erro
 			# make_dynamic() eh o oposto de make_static() desse jeito ele tenta recuperar
 			# a massa e outros atributos
 
 		self.player1.can_shoot = 0
+
+	@listen('long-press', 'up')
+	def grow_angle_shot(self):
+
+		player1 = self.player1
+
+		if player1.is_shotting == 1 and player1.shot_angle < 1.5:
+			player1.shot_angle += 0.02
+			player1.shot_direction = Vector(10,10)*sin(player1.shot_angle)
+			#player1.bullet.pos = atualizar posicao da bala
+			print(player1.shot_angle)
+			print(player1.shot_direction)
+
+	@listen('long-press', 'down')
+	def low_angle_shot(self):
+
+		player1 = self.player1
+
+		if player1.is_shotting == 1 and player1.shot_angle > 0.1:
+			player1.shot_angle -= 0.02
+			player1.shot_direction = Vector(10,10)*sin(player1.shot_angle)
+			#player1.bullet.pos = atualizar posicao da bala
+			print(player1.shot_angle) 
+			print(player1.shot_direction)
 
 
 if __name__ == '__main__':
