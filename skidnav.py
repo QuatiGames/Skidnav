@@ -126,7 +126,7 @@ class Skidnav(World):
 		
 		self.player2.can_shoot = 1
 		self.player2.is_shotting = 0
-		self.player2.shot_angle = 3.14
+		self.player2.shot_angle = 0.0
 		self.player2.shot_direction = Vector(0,0)
 
 
@@ -266,14 +266,16 @@ class Skidnav(World):
 			y = sin(angle)*vector.x + cos(angle)*vector.y
 
 			# atualizando posiçao da bala
-			player1.bullet.pos = Vector(x,y)
+			player1.bullet.pos = Vector(x,y) 
+
+			
 
 	@listen('long-press', 'down')
 	def low_angle_shot(self):
 
 		player1 = self.player1
 
-		if player1.is_shotting == 1 and player1.shot_angle > 0.1:
+		if player1.is_shotting == 1 and player1.shot_angle > 0.0:
 			player1.shot_angle -= 0.01
 			
 			angle = player1.shot_angle
@@ -356,28 +358,30 @@ class Skidnav(World):
 			player2.shot_angle += 0.01
 
 			angle = player2.shot_angle
-			vector = self.player2.pos + Vector(50,0)
+			vector = self.player1.pos + Vector(50,0) 
 
 			# rotacionando posiçao
-			x = cos(angle)*vector.x - sin(angle)*vector.y
+			x = -cos(angle)*vector.x + sin(angle)*vector.y + WIDTH
 			y = sin(angle)*vector.x + cos(angle)*vector.y
 
 			# atualizando posiçao da bala
 			player2.bullet.pos = Vector(x,y)
+			print(player2.bullet.pos)
 
 	@listen('long-press', 's')
 	def low_angle_shot2(self):
 
 		player2 = self.player2
 
-		if player2.is_shotting == 1 and player2.shot_angle > 0.1:
+		if player2.is_shotting == 1 and player2.shot_angle >= 0.0:
 			player2.shot_angle -= 0.01
+			print(player2.shot_angle)
 			
 			angle = player2.shot_angle
-			vector = self.player2.pos + Vector(50,0)
+			vector = self.player1.pos + Vector(50,0)
 
 			# Rotacionando posiçao 
-			x = cos(angle)*vector.x - sin(angle)*vector.y
+			x = -cos(angle)*vector.x + sin(angle)*vector.y + WIDTH
 			y = sin(angle)*vector.x + cos(angle)*vector.y
 
 			# Atualizando posiçao da bala
