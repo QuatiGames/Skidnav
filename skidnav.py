@@ -136,7 +136,7 @@ class Skidnav(World):
 		self.add(self.particles)
 		
 		#Criando player1
-		self.player1 = Player(player_vertices, color='blue', pos=Vector(120,125), world = self)
+		self.player1 = Player(player_vertices, color='blue', pos=Vector(120,110), world = self)
 		self.player1.name = '1'
 		self.player1.bullet = 0
 		self.player1.power_bar = Power_bar( pos=Vector(0,1000), world = self)
@@ -148,7 +148,7 @@ class Skidnav(World):
 		self.player1.life = 100
 
 		#Criando player2
-		self.player2 = Player(player_vertices, color='red', pos=Vector(WIDTH-120,125), world = self)
+		self.player2 = Player(player_vertices, color='red', pos=Vector(WIDTH-120,110), world = self)
 		self.player2.name = '2'
 		self.player2.bullet = 0
 		self.player2.power_bar = Power_bar(pos=Vector(0,1000), world = self)
@@ -177,6 +177,36 @@ class Skidnav(World):
 		#Anda o tempo
 		global TIME
 		TIME += 1
+
+		if self.player1.bullet != 0:
+			# checar colisao da bala do player1 com o player2
+			xmmax = max(self.player1.bullet.xmin, self.player2.xmin)
+			xMmin = min(self.player1.bullet.xmax, self.player2.xmax)
+
+			ymmax = max(self.player1.bullet.ymin, self.player2.ymin)
+			yMmin = min(self.player1.bullet.ymax, self.player2.ymax)
+
+			if xMmin >= xmmax  and  yMmin >= ymmax:
+				self.player2.life -= 10
+				print('player2:')
+				print(self.player2.life)
+				# remover bala
+				self.player1.bullet.pos.y = 1000
+
+		if self.player2.bullet != 0:
+			# checar colisao da bala do player1 com o player2
+			xmmax = max(self.player2.bullet.xmin, self.player1.xmin)
+			xMmin = min(self.player2.bullet.xmax, self.player1.xmax)
+
+			ymmax = max(self.player2.bullet.ymin, self.player1.ymin)
+			yMmin = min(self.player2.bullet.ymax, self.player1.ymax)
+
+			if xMmin >= xmmax  and  yMmin >= ymmax:
+				self.player1.life -= 10
+				print('player1:')
+				print(self.player1.life)
+				#remover bala
+				self.player2.bullet.pos.y = 1000
 
 
 		#Se tiver passado o tempo muda o vento
@@ -216,7 +246,7 @@ class Skidnav(World):
 		if self.player1.bullet != 0:
 
 			if bullet.is_flying == 1:
-				#bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+				bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
 				bullet.vel += wind
 
 			if bullet.pos.y <= self.floor.ymax or bullet.pos.x > WIDTH or bullet.pos.x < 0:
@@ -233,7 +263,7 @@ class Skidnav(World):
 		if bullet2 != 0:
 
 			if bullet2.is_flying == 1:
-				#bullet2.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+				bullet2.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
 				bullet2.vel += wind
 
 			if bullet2.pos.y <= self.floor.ymax or bullet2.pos.x > WIDTH or bullet2.pos.x < 0:
@@ -260,7 +290,7 @@ class Skidnav(World):
 
 			# Criando bala
 			self.player1.bullet = Bullet( pos= self.player1.pos + Vector(50,0), world = self)
-			#self.player1.bullet.make_static()
+			self.player1.bullet.make_static()
 
 
 
@@ -361,7 +391,7 @@ class Skidnav(World):
 
 			# Criando bala
 			self.player2.bullet = Bullet( pos= self.player2.pos - Vector(50,0), world = self)
-			#self.player2.bullet.make_static()
+			self.player2.bullet.make_static()
 
 
 	@listen('long-press', 'space')
