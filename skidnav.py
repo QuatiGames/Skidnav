@@ -139,13 +139,21 @@ class Skidnav(World):
 		self.player1 = Player(player_vertices, color='blue', pos=Vector(120,110), world = self)
 		self.player1.name = '1'
 		self.player1.bullet = 0
-		self.player1.power_bar = Power_bar( pos=Vector(0,1000), world = self)
+		self.player1.power_bar = Power_bar(pos=Vector(0,1000), world = self)
 		
 		self.player1.can_shoot = 1
 		self.player1.is_shotting = 0
 		self.player1.shot_angle = 0.0
 		self.player1.shot_direction = Vector(0,0)
-		self.player1.life = 100
+		self.player1.life_number = 3
+		self.player1.life = []
+
+		for x in range(1,4):
+			life = Circle(radius=20, pos=Vector(0 + (40*x) ,HEIGHT - 40), color='blue')
+			life.make_static()
+			self.player1.life.append(life)
+			pass
+		self.add(self.player1.life)
 
 		#Criando player2
 		self.player2 = Player(player_vertices, color='red', pos=Vector(WIDTH-120,110), world = self)
@@ -157,7 +165,15 @@ class Skidnav(World):
 		self.player2.is_shotting = 0
 		self.player2.shot_angle = 0.0
 		self.player2.shot_direction = Vector(0,0)
-		self.player2.life = 100
+		self.player2.life_number = 3
+		self.player2.life = []
+
+		for x in range(1,4):
+			life = Circle(radius=20, pos=Vector(WIDTH - (40*x) ,HEIGHT - 40), color='red')
+			life.make_static()
+			self.player2.life.append(life)
+			pass
+		self.add(self.player2.life)	
 
 		# adicionando player1 e relacionados ao mundo
 		self.add(self.player1)
@@ -187,11 +203,15 @@ class Skidnav(World):
 			yMmin = min(self.player1.bullet.ymax, self.player2.ymax)
 
 			if xMmin >= xmmax  and  yMmin >= ymmax:
-				self.player2.life -= 10
 				print('player2:')
 				print(self.player2.life)
 				# remover bala
 				self.player1.bullet.pos.y = 1000
+				#diminui a vida do player2
+				if self.player2.life_number >= 0:
+					self.player2.life_number -= 1
+					self.player2.life[self.player2.life_number].pos.y = 1000
+					pass
 
 		if self.player2.bullet != 0:
 			# checar colisao da bala do player1 com o player2
@@ -202,11 +222,15 @@ class Skidnav(World):
 			yMmin = min(self.player2.bullet.ymax, self.player1.ymax)
 
 			if xMmin >= xmmax  and  yMmin >= ymmax:
-				self.player1.life -= 10
 				print('player1:')
 				print(self.player1.life)
 				#remover bala
 				self.player2.bullet.pos.y = 1000
+				#diminui a vida do player1
+				if self.player1.life_number >= 0:
+					self.player1.life_number -= 1
+					self.player1.life[self.player1.life_number].pos.y = 1000
+					pass
 
 
 		#Se tiver passado o tempo muda o vento
