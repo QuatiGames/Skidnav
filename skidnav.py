@@ -3,6 +3,7 @@ from FGAme.mathutils import convex_hull, pi
 from random import normalvariate, uniform
 from FGAme import signal
 from math import *
+import random
 
 ###############################################################################
 #                                 Autores
@@ -31,7 +32,12 @@ HEIGHT = 600
 ### do jeito que esta agora elas sao velocidades constantes que aplicam na velocidade da bala
 ###
 G = Vector(0,-20)
+
+global wind
 wind = Vector(-9,2)
+
+global TIME 
+TIME = 0
 
 ###############################################################################
 #                             Implementação
@@ -97,6 +103,10 @@ class Skidnav(World):
 	def __init__(self):
 		World.__init__(self, background='white', gravity = 500, rest_coeff=0)
 
+		#Intencidades do vento
+		self.wind_intencity = [10, 20, 30]
+		self.wind_angle = random.randrange(6283185) / 1000000
+
 		#Cria chao
 		floor_vertices = [(0, 0), (WIDTH, 0), (WIDTH, 100), (0,100)]
 		self.floor = Poly(floor_vertices, color='black', pos=Vector(WIDTH/2,0), mass='inf', world=self)
@@ -122,13 +132,12 @@ class Skidnav(World):
 		self.player2 = Player(player_vertices, color='red', pos=Vector(WIDTH-120,125), world = self)
 		self.player2.name = '2'
 		self.player2.bullet = 0
-		self.player2.power_bar = Power_bar( pos=Vector(0,1000), world = self)
+		self.player2.power_bar = Power_bar(pos=Vector(0,1000), world = self)
 		
 		self.player2.can_shoot = 1
 		self.player2.is_shotting = 0
 		self.player2.shot_angle = 3.14
 		self.player2.shot_direction = Vector(0,0)
-
 
 		# adicionando player1 e relacionados ao mundo
 		self.add(self.player1)
@@ -145,7 +154,29 @@ class Skidnav(World):
 
 	@listen('frame-enter')
 	def init_frame(self):
-		
+		#Anda o tempo
+		global TIME
+		TIME += 1
+
+		#Se tiver passado o tempo muda o vento
+		if TIME > 600:
+			global wind
+			self.wind_angle = random.randrange(6283185) / 1000000
+			vector = Vector(1,0) * random.choice(self.wind_intencity)
+
+			# rotacionando posiçao do vento
+			x = cos(self.wind_angle)*vector.x - sin(self.wind_angle)*vector.y
+			y = sin(self.wind_angle)*vector.x + cos(self.wind_angle)*vector.y
+
+			wind = Vector(x,y)
+
+			print (self.wind_angle, vector)
+			print(wind)
+			
+			TIME = 0
+			pass
+
+
 		#Para o player 1
 		bullet = self.player1.bullet
 
@@ -179,12 +210,6 @@ class Skidnav(World):
 
 			else: 
 				bullet2.rotate(0.2)
-			
-			# o normal seria WIDTH apenas... sem ser WIDTH/2 isso seria que outro projetil so pode ser
-			# lançado ser lançado depois do primeiro sair da tela ou tocar o chao
-			# para restringir atirar demais, nao sei se jogaremos por rodada... acho melhor nao
-			# if bullet.pos.x > WIDTH/2 or bullet.pos.y > HEIGHT- 130:
-			# 	self.player1.can_shoot = 1
 
 
 ### Comandos para o player 1
