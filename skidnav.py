@@ -16,9 +16,9 @@ import random
 #
 # 2) Criar las Personitas (OK!)
 #    
-# 3) Criar o tiro (OK)
+# 3) Criar o tiro (OK!)
 #    
-# 4) Criar os inputs (OK)
+# 4) Criar os inputs (OK!)
 # 
 # 5) Criar os indicadores de angulo (QUASE)
 
@@ -56,8 +56,6 @@ class Player(Poly):
 		else:
 			pass
 
-		
-
 class Bullet(Poly):
 	
 	def __init__(self, pos, world):
@@ -73,15 +71,21 @@ class Bullet(Poly):
 	@listen('collision')
 	def handle_collision(self, col):
 		other = col.other(self)
+
 		if other.name == 'Floor':
 			self.make_static()
 			self.vel = Vector(0,0)
 			print('Colidiu com o chao')
+
 		elif other.name == '1' or other.name == '2':
-			print('Atingiu o player' + other.name)
+			other.life -= 10
+			print('player' + other.name + ':')
+			print(other.life)
+			self.make_static()
 
 		else:
 			pass
+
 		
 class Power_bar(Poly):
 	def __init__(self, pos, world):
@@ -141,6 +145,7 @@ class Skidnav(World):
 		self.player1.is_shotting = 0
 		self.player1.shot_angle = 0.0
 		self.player1.shot_direction = Vector(0,0)
+		self.player1.life = 100
 
 		#Criando player2
 		self.player2 = Player(player_vertices, color='red', pos=Vector(WIDTH-120,125), world = self)
@@ -150,8 +155,9 @@ class Skidnav(World):
 		
 		self.player2.can_shoot = 1
 		self.player2.is_shotting = 0
-		self.player2.shot_angle = 3.14
+		self.player2.shot_angle = 0.0
 		self.player2.shot_direction = Vector(0,0)
+		self.player2.life = 100
 
 		# adicionando player1 e relacionados ao mundo
 		self.add(self.player1)
@@ -171,6 +177,7 @@ class Skidnav(World):
 		#Anda o tempo
 		global TIME
 		TIME += 1
+
 
 		#Se tiver passado o tempo muda o vento
 		if TIME > 600:
@@ -209,7 +216,7 @@ class Skidnav(World):
 		if self.player1.bullet != 0:
 
 			if bullet.is_flying == 1:
-				bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+				#bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
 				bullet.vel += wind
 
 			if bullet.pos.y <= self.floor.ymax or bullet.pos.x > WIDTH or bullet.pos.x < 0:
@@ -226,7 +233,7 @@ class Skidnav(World):
 		if bullet2 != 0:
 
 			if bullet2.is_flying == 1:
-				bullet2.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+				#bullet2.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
 				bullet2.vel += wind
 
 			if bullet2.pos.y <= self.floor.ymax or bullet2.pos.x > WIDTH or bullet2.pos.x < 0:
@@ -253,7 +260,8 @@ class Skidnav(World):
 
 			# Criando bala
 			self.player1.bullet = Bullet( pos= self.player1.pos + Vector(50,0), world = self)
-			self.player1.bullet.make_static()
+			#self.player1.bullet.make_static()
+
 
 
 	@listen('long-press', 'l')
@@ -270,7 +278,7 @@ class Skidnav(World):
 
 		# atualizando posiçao da power_line
 		self.player1.power_bar.power_line.pos.y = -cos_angle*(bar_height/2) + bar_y_pos
-		
+		self.player1.bullet.vel = Vector(0,0.12)
 
 	@listen('key-up', 'l')
 	def end_power_bar(self):
@@ -317,14 +325,16 @@ class Skidnav(World):
 			y = sin(angle)*vector.x + cos(angle)*vector.y
 
 			# atualizando posiçao da bala
-			player1.bullet.pos = Vector(x,y)
+			player1.bullet.pos = Vector(x,y) 
+
+			
 
 	@listen('long-press', 'down')
 	def low_angle_shot(self):
 
 		player1 = self.player1
 
-		if player1.is_shotting == 1 and player1.shot_angle > 0.1:
+		if player1.is_shotting == 1 and player1.shot_angle > 0.0:
 			player1.shot_angle -= 0.01
 			
 			angle = player1.shot_angle
@@ -351,7 +361,7 @@ class Skidnav(World):
 
 			# Criando bala
 			self.player2.bullet = Bullet( pos= self.player2.pos - Vector(50,0), world = self)
-			self.player2.bullet.make_static()
+			#self.player2.bullet.make_static()
 
 
 	@listen('long-press', 'space')
@@ -367,7 +377,7 @@ class Skidnav(World):
 
 		# atualizando posiçao da power_line
 		self.player2.power_bar.power_line.pos.y = -cos_angle*(bar_height/2) + bar_y_pos
-		
+		self.player2.bullet.vel = Vector(0,0.12)
 
 	@listen('key-up', 'space')
 	def end_power_bar2(self):
@@ -407,28 +417,30 @@ class Skidnav(World):
 			player2.shot_angle += 0.01
 
 			angle = player2.shot_angle
-			vector = self.player2.pos + Vector(50,0)
+			vector = self.player1.pos + Vector(50,0) 
 
 			# rotacionando posiçao
-			x = cos(angle)*vector.x - sin(angle)*vector.y
+			x = -cos(angle)*vector.x + sin(angle)*vector.y + WIDTH
 			y = sin(angle)*vector.x + cos(angle)*vector.y
 
 			# atualizando posiçao da bala
 			player2.bullet.pos = Vector(x,y)
+			print(player2.bullet.pos)
 
 	@listen('long-press', 's')
 	def low_angle_shot2(self):
 
 		player2 = self.player2
 
-		if player2.is_shotting == 1 and player2.shot_angle > 0.1:
+		if player2.is_shotting == 1 and player2.shot_angle >= 0.0:
 			player2.shot_angle -= 0.01
+			print(player2.shot_angle)
 			
 			angle = player2.shot_angle
-			vector = self.player2.pos + Vector(50,0)
+			vector = self.player1.pos + Vector(50,0)
 
 			# Rotacionando posiçao 
-			x = cos(angle)*vector.x - sin(angle)*vector.y
+			x = -cos(angle)*vector.x + sin(angle)*vector.y + WIDTH
 			y = sin(angle)*vector.x + cos(angle)*vector.y
 
 			# Atualizando posiçao da bala
