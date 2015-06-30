@@ -59,6 +59,7 @@ class Bullet(Poly):
 		
 		self.make_static()
 		self.name = 'bullet'
+		self.mass = '100'
 		self.is_flying = 0 #variavel pode ser eliminada caso consiga voltar o objeto ao estado dinamico
 
 	@listen('collision')
@@ -67,6 +68,7 @@ class Bullet(Poly):
 		if other.name == 'Floor':
 			self.make_static()
 			self.vel = Vector(0,0)
+			print('Colidiu com o chao')
 		elif other.name == '1' or other.name == '2':
 			print('Atingiu o player' + other.name)
 
@@ -117,7 +119,7 @@ class Skidnav(World):
 		self.player1.can_shoot = 1
 		self.player1.is_shotting = 0
 		self.player1.shot_angle = 0.0
-		self.player1.shot_direction = Vector(10,10)
+		self.player1.shot_direction = Vector(0,0)
 
 		self.add(self.player1)
 		self.add(self.player2)
@@ -136,6 +138,7 @@ class Skidnav(World):
 				bullet.vel += wind
 
 			if bullet.pos.y <= self.floor.ymax or bullet.pos.x > WIDTH:
+				# Stopping bullet
 				bullet.vel = Vector(0,0)
 				self.player1.can_shoot = 1
 
@@ -158,16 +161,24 @@ class Skidnav(World):
 			self.player1.power_bar.pos = self.player1.pos - Vector(50,0)
 			self.player1.power_bar.power_line.pos = self.player1.pos - Vector(50,0)
 
+			# creating bullet
 			self.player1.bullet = Bullet( pos= self.player1.pos + Vector(50,0), world = self)
+			self.player1.bullet.make_static()
 
 	@listen('long-press', 'space')
 	def powering_shot(self):
 
-		#if self.player1.can_shoot == 1:
-		# self.player1.power_bar.angle += 0.08
-		# self.player1.power_bar.pos.y += sin(self.player1.power_bar.angle)*5
+		# updating angle
 		self.player1.power_bar.power_line.angle += 0.05
-		self.player1.power_bar.power_line.pos.y = -cos(self.player1.power_bar.power_line.angle)*(self.player1.power_bar.height/2) + self.player1.power_bar.pos.y
+
+		# preparing variables
+		bar_y_pos = self.player1.power_bar.pos.y
+		cos_angle = cos(self.player1.power_bar.power_line.angle)
+		bar_height = (self.player1.power_bar.height)
+
+		# updatign power_line position
+		self.player1.power_bar.power_line.pos.y = -cos_angle*(bar_height/2) + bar_y_pos
+		
 
 	@listen('key-up', 'space')
 	def end_power_bar(self):
@@ -176,14 +187,21 @@ class Skidnav(World):
 			print("released")
 			#Removing power_bar from the world \o/
 			# self.remove(self.player1.power_bar)
-			power = self.player1.power_bar.power_line.pos.y * 2
-			
+
+			# launching bullet
+			power = self.player1.power_bar.power_line.pos.y
+			self.player1.shot_direction =  self.player1.bullet.pos - self.player1.pos 
+			self.player1.bullet.vel = self.player1.shot_direction*power/4
+
+			# "removing" HUD power bar
 			self.player1.power_bar.pos.y = 1000
-			self.player1.power_bar.power_line.pos.y = 1000			
+			self.player1.power_bar.power_line.pos.y = 1000
 			self.player1.power_bar.power_line.angle = 0
-			self.player1.bullet.vel = self.player1.shot_direction*power/2.5
+
+			# updating combat flags
 			self.player1.bullet.is_flying = 1
 			self.player1.is_shotting = 0
+			self.player1.shot_angle = 0.0
 			
 			#self.player1.bullet.make_dynamic() # esse metodo esta certo porem ele ta dando erro
 			# make_dynamic() eh o oposto de make_static() desse jeito ele tenta recuperar
@@ -196,12 +214,20 @@ class Skidnav(World):
 
 		player1 = self.player1
 
-		if player1.is_shotting == 1 and player1.shot_angle < 1.5:
-			player1.shot_angle += 0.02
-			player1.shot_direction = Vector(10,10)*sin(player1.shot_angle)
-			#player1.bullet.pos = atualizar posicao da bala
-			print(player1.shot_angle)
-			print(player1.shot_direction)
+		if player1.is_shotting == 1 and player1.shot_angle < 0.4:
+			player1.shot_angle += 0.01
+
+			angle = player1.shot_angle
+			vector = self.player1.pos + Vector(50,0)
+
+			# rotating position
+			x = cos(angle)*vector.x - sin(angle)*vector.y
+			y = sin(angle)*vector.x + cos(angle)*vector.y
+
+			# updating bullet with the new position
+			player1.bullet.pos = Vector(x,y)
+
+
 
 	@listen('long-press', 'down')
 	def low_angle_shot(self):
@@ -209,11 +235,17 @@ class Skidnav(World):
 		player1 = self.player1
 
 		if player1.is_shotting == 1 and player1.shot_angle > 0.1:
-			player1.shot_angle -= 0.02
-			player1.shot_direction = Vector(10,10)*sin(player1.shot_angle)
-			#player1.bullet.pos = atualizar posicao da bala
-			print(player1.shot_angle) 
-			print(player1.shot_direction)
+			player1.shot_angle -= 0.01
+			
+			angle = player1.shot_angle
+			vector = self.player1.pos + Vector(50,0)
+
+			# rotating position 
+			x = cos(angle)*vector.x - sin(angle)*vector.y
+			y = sin(angle)*vector.x + cos(angle)*vector.y
+
+			# updating bullet with the new position
+			player1.bullet.pos = Vector(x,y)
 
 
 if __name__ == '__main__':
