@@ -28,6 +28,8 @@ import random
 WIDTH = 800
 HEIGHT = 600
 
+NUMERO_PARTICULAS = 100
+
 ### a gravidade e o vento sao aceleracoes, mas do jeito que esta nao esta correto
 ### do jeito que esta agora elas sao velocidades constantes que aplicam na velocidade da bala
 ###
@@ -104,8 +106,8 @@ class Skidnav(World):
 		World.__init__(self, background='white', gravity = 500, rest_coeff=0)
 
 		#Intencidades do vento
-		self.wind_intencity = [10, 20, 30]
-		self.wind_angle = random.randrange(6283185) / 1000000
+		self.wind_intencity = [5, 10, 15]
+		self.wind_angle = (random.randrange(3141592) / 1000000) + 3.141592
 
 		#Cria chao
 		floor_vertices = [(0, 0), (WIDTH, 0), (WIDTH, 100), (0,100)]
@@ -115,7 +117,19 @@ class Skidnav(World):
 
 		#Preparando forma dos personagens
 		player_vertices = [(0, 0),(25, 0),(25, 50),(0, 50)]
-		
+
+		#Particulas
+		self.particles = []
+
+		for x in range(0,NUMERO_PARTICULAS):	
+			particle = Circle(radius=3, pos=Vector(random.randrange(WIDTH),random.randrange(HEIGHT)))
+			particle.make_static()
+			particle.name = "particle"
+
+			self.particles.append(particle)
+			pass
+
+		self.add(self.particles)
 		
 		#Criando player1
 		self.player1 = Player(player_vertices, color='blue', pos=Vector(120,125), world = self)
@@ -161,7 +175,7 @@ class Skidnav(World):
 		#Se tiver passado o tempo muda o vento
 		if TIME > 600:
 			global wind
-			self.wind_angle = random.randrange(6283185) / 1000000
+			self.wind_angle = (random.randrange(3141592) / 1000000) + 3.141592
 			vector = Vector(1,0) * random.choice(self.wind_intencity)
 
 			# rotacionando posiçao do vento
@@ -176,6 +190,18 @@ class Skidnav(World):
 			TIME = 0
 			pass
 
+		#Move as particulas
+		for x in range(0, NUMERO_PARTICULAS):
+			self.particles[x].pos += wind
+			if self.particles[x].pos.x > WIDTH:
+				self.particles[x].pos.x = 0
+			elif self.particles[x].pos.x < 0:
+				self.particles[x].pos.x = WIDTH
+
+			if self.particles[x].pos.y > HEIGHT:
+				self.particles[x].pos.y = 0
+			elif self.particles[x].pos.y < 0:
+				self.particles[x].pos.y = HEIGHT
 
 		#Para o player 1
 		bullet = self.player1.bullet
