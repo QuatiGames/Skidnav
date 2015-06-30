@@ -126,7 +126,7 @@ class Skidnav(World):
 		
 		self.player2.can_shoot = 1
 		self.player2.is_shotting = 0
-		self.player2.shot_angle = 0.0
+		self.player2.shot_angle = 3.14
 		self.player2.shot_direction = Vector(0,0)
 
 
@@ -164,21 +164,21 @@ class Skidnav(World):
 				bullet.rotate(0.2)
 
 		#para o player 2
-		bullet = self.player2.bullet
+		bullet2 = self.player2.bullet
 
-		if bullet != 0:
+		if bullet2 != 0:
 
-			if bullet.is_flying == 1:
-				bullet.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
-				bullet.vel += wind
+			if bullet2.is_flying == 1:
+				bullet2.vel += G #Ja que o objeto nao eh dinamico temos que aplicar a fisica nele
+				bullet2.vel += wind
 
-			if bullet.pos.y <= self.floor.ymax or bullet.pos.x > WIDTH or bullet.pos.x < 0:
+			if bullet2.pos.y <= self.floor.ymax or bullet2.pos.x > WIDTH or bullet2.pos.x < 0:
 				# parando a bala
-				bullet.vel = Vector(0,0)
-				self.player1.can_shoot = 1
+				bullet2.vel = Vector(0,0)
+				self.player2.can_shoot = 1
 
 			else: 
-				bullet.rotate(0.2)
+				bullet2.rotate(0.2)
 			
 			# o normal seria WIDTH apenas... sem ser WIDTH/2 isso seria que outro projetil so pode ser
 			# lançado ser lançado depois do primeiro sair da tela ou tocar o chao
@@ -328,7 +328,7 @@ class Skidnav(World):
 
 			# Lançando bala
 			power = self.player2.power_bar.power_line.pos.y
-			self.player2.shot_direction =  self.player2.bullet.pos - self.player2.pos 
+			self.player2.shot_direction =    self.player2.bullet.pos - self.player2.pos
 			self.player2.bullet.vel = self.player2.shot_direction*power/4
 
 			# removendo power bar
